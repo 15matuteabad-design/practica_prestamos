@@ -54,3 +54,13 @@ Porque el domain solo filtra la lista en el momento en que elijo el equipo. Desp
 **2. ¿En qué momento se ejecuta un método con @api.constrains? ¿Y la validación de action_prestar?**
 
 El método con @api.constrains se ejecuta solo cada vez que se guarda un registro, al crearlo o modificarlo. Si lanza el error, el registro no se guarda. La validación de action_prestar solo se ejecuta cuando el usuario pulsa el botón Prestar, por eso un préstamo con 3 equipos de estudiante sí se puede guardar en borrador, pero no se puede prestar.
+
+### Paso 6. Contacto, kanban y búsqueda
+
+**1. ¿Qué pasa si arrastra una tarjeta del kanban a otra columna? ¿Por qué?**
+
+El equipo cambia de estado al de la columna donde lo suelto, por ejemplo de Disponible a En mantenimiento. Pasa porque el kanban está agrupado por el campo estado (default_group_by="estado") y al mover la tarjeta Odoo guarda en ese campo el valor de la nueva columna.
+
+**2. El campo prestamo_ids se agregó a res.partner. ¿Se crea una columna nueva en la tabla de contactos? Explique.**
+
+No. Un One2many no se guarda en la tabla de contactos. La relación ya está guardada en la tabla de préstamos, en la columna partner_id de cada préstamo. El campo prestamo_ids solo busca todos los préstamos cuyo partner_id sea ese contacto y los muestra.
