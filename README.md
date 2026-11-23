@@ -44,3 +44,13 @@ Porque ocultar el botón solo cambia lo que se ve en la pantalla, pero el métod
 **2. ¿Qué hace prestamo.linea_ids.equipo_id.write(...)? ¿Por qué no hace falta un for para cada equipo?**
 
 prestamo.linea_ids.equipo_id devuelve un recordset con todos los equipos de las líneas del préstamo, y write cambia el estado de todos esos equipos al mismo tiempo. No hace falta un for porque en Odoo los recordsets pueden tener varios registros, y write se aplica a todos los registros que contiene.
+
+### Paso 5. Reglas del préstamo
+
+**1. El campo equipo_id ya filtra los equipos disponibles. ¿Por qué hace falta el TODO 5?**
+
+Porque el domain solo filtra la lista en el momento en que elijo el equipo. Después de agregarlo el equipo puede cambiar de estado, por ejemplo si lo mandan a mantenimiento o si se presta en otro préstamo al mismo tiempo.
+
+**2. ¿En qué momento se ejecuta un método con @api.constrains? ¿Y la validación de action_prestar?**
+
+El método con @api.constrains se ejecuta solo cada vez que se guarda un registro, al crearlo o modificarlo. Si lanza el error, el registro no se guarda. La validación de action_prestar solo se ejecuta cuando el usuario pulsa el botón Prestar, por eso un préstamo con 3 equipos de estudiante sí se puede guardar en borrador, pero no se puede prestar.

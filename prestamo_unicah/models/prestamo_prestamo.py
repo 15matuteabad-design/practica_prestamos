@@ -1,5 +1,8 @@
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
+
+DIAS_MAXIMOS_ESTUDIANTE = 7
+LIMITE_EQUIPOS_ESTUDIANTE = 2
 
 
 class PrestamoPrestamo(models.Model):
@@ -60,6 +63,18 @@ class PrestamoPrestamo(models.Model):
                 raise UserError("Solo se puede prestar un préstamo en borrador.")
             if not prestamo.linea_ids:
                 raise UserError("Agregue al menos un equipo al préstamo.")
+            # TODO 4: límite de equipos para estudiantes
+            if (prestamo.tipo_solicitante == "estudiante"
+                    and prestamo.cantidad_equipos > LIMITE_EQUIPOS_ESTUDIANTE):
+                raise UserError(
+                    f"Un estudiante puede llevar máximo {LIMITE_EQUIPOS_ESTUDIANTE} equipos."
+                )
+            # TODO 5: todos los equipos tienen que estar disponibles
+            for linea in prestamo.linea_ids:
+                if linea.equipo_id.estado != "disponible":
+                    raise UserError(
+                        f"El equipo {linea.equipo_id.name} no está disponible."
+                    )
             prestamo.linea_ids.equipo_id.write({"estado": "prestado"})
             prestamo.state = "prestado"
             prestamo.message_post(
@@ -74,3 +89,28 @@ class PrestamoPrestamo(models.Model):
             prestamo.linea_ids.equipo_id.write({"estado": "disponible"})
             prestamo.state = "devuelto"
             prestamo.message_post(body="Los equipos fueron devueltos.")
+
+    @api.constrains("fecha_prestamo", "fecha_devolucion", "tipo_solicitante")
+    def _check_fechas(self):
+        for prestamo in self:
+            # TODO 1: la devolución no puede ser antes del préstamo
+            if prestamo.fecha_devolucion < prestamo.fecha_prestamo:
+                raise ValidationError(
+                    "La fecha de devolución no puede ser anterior a la fecha de préstamo."
+                )
+            # TODO 2: un estudiante no puede pasar de los días máximos
+            if (prestamo.tipo_solicitante == "estudiante"
+                    and prestamo.dias_prestamo > DIAS_MAXIMOS_ESTUDIANTE):
+                raise ValidationError(
+                    f"Un estudiante no puede tener un préstamo de más de "
+                    f"{DIAS_MAXIMOS_ESTUDIANTE} días."
+                )
+
+    @api.constrains("linea_ids")
+    def _check_equipos_repetidos(self):
+        for prestamo in self:
+            # TODO 3: si hay más líneas que equipos distintos, hay un equipo repetido
+            if len(prestamo.linea_ids) != len(prestamo.linea_ids.equipo_id):
+                raise ValidationError(
+                    "Un equipo no puede aparecer dos veces en el mismo préstamo."
+                )
