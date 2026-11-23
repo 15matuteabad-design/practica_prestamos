@@ -6,7 +6,6 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
-                <!-- TODO 1: pestaña Préstamos de solo lectura -->
                 <page name="prestamos" string="Préstamos">
                     <field name="prestamo_ids" readonly="1">
                         <list>

@@ -25,6 +25,8 @@
                     <button name="action_devolver" string="Devolver" type="object"
                             class="btn-primary"
                             invisible="state not in ('prestado', 'atrasado')"/>
+                    <button name="action_marcar_atrasado" string="Marcar atrasado"
+                            type="object" invisible="state != 'prestado'"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="borrador,prestado,devuelto"/>
                 </header>
@@ -68,14 +70,11 @@
             <search>
                 <field name="name"/>
                 <field name="partner_id"/>
-                <!-- TODO 3: filtro Activos -->
                 <filter name="activos" string="Activos"
                         domain="[('state', 'in', ('prestado', 'atrasado'))]"/>
-                <!-- TODO 4: filtro Atrasados -->
                 <filter name="atrasados" string="Atrasados"
                         domain="[('state', '=', 'atrasado')]"/>
                 <group>
-                    <!-- TODO 5: agrupar por estado y por solicitante -->
                     <filter name="agrupar_estado" string="Estado"
                             context="{'group_by': 'state'}"/>
                     <filter name="agrupar_solicitante" string="Solicitante"
